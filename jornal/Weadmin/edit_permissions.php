@@ -15,7 +15,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
 if (isset($_GET['admin_id'])) {
     $admin_id = intval($_GET['admin_id']);
 
-    $stmt = $conn->prepare("SELECT username, role FROM admins WHERE id = ?");
+    // Obter username e role_name via JOIN
+    $stmt = $conn->prepare("SELECT a.username, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.id = ?");
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
     $stmt->bind_result($username, $role);
@@ -46,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_id'], $_POST['n
         exit();
     }
 
-    // Buscar o username do adm que está a ser editado
+    // Buscar o username do admin que está a ser editado
     $stmt = $conn->prepare("SELECT username FROM admins WHERE id = ?");
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
@@ -59,16 +60,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_id'], $_POST['n
         exit();
     }
 
-    // Atualizar permissões
-    $stmt = $conn->prepare("UPDATE admins SET role = ? WHERE id = ?");
-    $stmt->bind_param("si", $new_role, $admin_id);
+    // Obter o role_id correspondente ao novo cargo (role_name)
+    $stmt = $conn->prepare("SELECT id FROM roles WHERE role_name = ?");
+    $stmt->bind_param("s", $new_role);
+    $stmt->execute();
+    $stmt->bind_result($new_role_id);
+    $stmt->fetch();
+    $stmt->close();
+
+    if (!$new_role_id) {
+        echo "<p>Erro: Cargo inválido.</p>";
+        exit();
+    }
+
+    // Atualizar permissões (atualiza a coluna role_id)
+    $stmt = $conn->prepare("UPDATE admins SET role_id = ? WHERE id = ?");
+    $stmt->bind_param("ii", $new_role_id, $admin_id);
 
     if ($stmt->execute()) {
         // Log da ação
-        $log_stmt = $conn->prepare("
-            INSERT INTO admin_logs (admin_id, admin_username, action) 
-            VALUES (?, ?, ?)
-        ");
+        $log_stmt = $conn->prepare("INSERT INTO admin_logs (admin_id, admin_username, action) VALUES (?, ?, ?)");
         $action = "Alterou permissões do admin '$target_admin_username' (ID: $admin_id) para '$new_role'";
         $log_stmt->bind_param("iss", $current_admin_id, $current_admin_username, $action);
         $log_stmt->execute();

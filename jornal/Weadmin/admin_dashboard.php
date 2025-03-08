@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 
 // Verificar se o admin está logado
@@ -13,14 +17,14 @@ if ($conn->connect_error) {
     die("Erro de conexão: " . $conn->connect_error);
 }
 
-// Buscar o cargo (role) do admin
+// Buscar o cargo (role) do admin através de join entre admins e roles
 $username = $_SESSION['username'];
-$stmt = $conn->prepare("SELECT role FROM admins WHERE username = ?");
+$stmt = $conn->prepare("SELECT r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $admin = $result->fetch_assoc();
-$role = $admin['role'];
+$role = $admin['role_name'];
 $stmt->close();
 $conn->close();
 ?>

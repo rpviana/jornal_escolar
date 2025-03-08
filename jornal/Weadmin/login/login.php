@@ -35,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $stmt = $conn->prepare("SELECT password, role FROM admins WHERE username = ?");
+    // Atualizado: obter a senha e o role_name através de JOIN com a tabela roles
+    $stmt = $conn->prepare("SELECT a.password, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $stmt->store_result();

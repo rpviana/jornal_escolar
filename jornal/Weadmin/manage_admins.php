@@ -14,8 +14,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
     exit();
 }
 
-// Buscar lista de admins
-$result = $conn->query("SELECT id, username, role FROM admins");
+// Buscar lista de admins com as respectivas roles
+$result = $conn->query("SELECT a.id, a.username, r.role_name as role FROM admins a JOIN roles r ON a.role_id = r.id");
 
 // Deletar admin (se solicitado)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
     $current_admin_id = $_SESSION['id']; // ID do superadmin atual
 
     // Buscar informações do admin alvo
-    $stmt = $conn->prepare("SELECT username, role FROM admins WHERE id = ?");
+    $stmt = $conn->prepare("SELECT a.username, r.role_name as role FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.id = ?");
     $stmt->bind_param("i", $admin_id);
     $stmt->execute();
     $stmt->bind_result($admin_username, $role);
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     </style>
 </head>
 <body>
-    <h1>Controlars Admins</h1>
+    <h1>Controlar Admins</h1>
 
     <?php if ($result->num_rows > 0): ?>
         <?php while ($admin = $result->fetch_assoc()): ?>
