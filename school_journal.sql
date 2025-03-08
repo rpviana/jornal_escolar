@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2025 at 08:10 PM
+-- Generation Time: Mar 08, 2025 at 08:51 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,17 +34,18 @@ CREATE TABLE `admins` (
   `username` varchar(50) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('superadmin','editor','moderator') DEFAULT 'editor',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `profile_pic` varchar(255) DEFAULT NULL
+  `role_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admins`
 --
 
-INSERT INTO `admins` (`id`, `username`, `email`, `password`, `role`, `created_at`, `profile_pic`) VALUES
-(1, 'AdminViana', 'rapviana2005@gmail.com', '$2y$10$vQ9WJOCTZpD5AytN.b2hk.KqAyrAv2rAvHnEazuOynTDzm/tn3BgK', 'superadmin', '2025-01-05 12:01:38', NULL);
+INSERT INTO `admins` (`id`, `username`, `email`, `password`, `role_id`, `created_at`) VALUES
+(1, 'AdminViana', 'rapviana2005@gmail.com', '$2y$10$vQ9WJOCTZpD5AytN.b2hk.KqAyrAv2rAvHnEazuOynTDzm/tn3BgK', 1, '2025-01-05 12:01:38'),
+(4, 'lucas', 'lucasgay', '$2y$10$fnaZbVmqoH8J/zuLo5nKcejWeC3De6mlgtuWodNbxMpNm0ZZ3YBGG', 1, '2025-03-08 19:48:14'),
+(5, 'iker', 'ikergay', '$2y$10$ybgkzlK1PdzJnkL22VKCte.ezfqXZkp/ap1Sk/zYxjPjQMbsuOkSe', 1, '2025-03-08 19:49:42');
 
 -- --------------------------------------------------------
 
@@ -69,14 +70,10 @@ INSERT INTO `admin_logs` (`id`, `admin_id`, `action`, `timestamp`, `admin_userna
 (2, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-05 15:33:55', NULL),
 (3, NULL, 'Alterou permissões do admin \'AdminLuisSantos\' (ID: 5) para \'superadmin\'', '2025-01-05 15:33:57', NULL),
 (4, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-05 17:58:04', NULL),
-(5, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-05 17:58:21', NULL),
-(6, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-05 21:28:23', NULL),
-(7, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-05 21:28:35', NULL),
-(8, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-06 10:01:45', NULL),
-(9, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-10 12:00:51', NULL),
-(10, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-28 16:46:49', NULL),
-(11, NULL, 'Acessou edição de permissões do admin \'AdminLuisSantos\' (ID: 5)', '2025-01-28 16:48:33', NULL),
-(12, NULL, 'Excluiu o admin \'AdminLuisSantos\' (ID: 5)', '2025-01-28 16:50:42', NULL);
+(5, NULL, 'Acessou edição de permissões do admin \'AdminViana\' (ID: 1)', '2025-03-08 19:42:38', NULL),
+(6, NULL, 'Acessou edição de permissões do admin \'AdminViana\' (ID: 1)', '2025-03-08 19:42:43', NULL),
+(7, NULL, 'Acessou edição de permissões do admin \'Lucas\' (ID: 2)', '2025-03-08 19:45:21', NULL),
+(8, NULL, 'Excluiu o admin \'Lucas\' (ID: 2)', '2025-03-08 19:47:15', NULL);
 
 -- --------------------------------------------------------
 
@@ -111,11 +108,27 @@ CREATE TABLE `news` (
 --
 
 INSERT INTO `news` (`id`, `title`, `content`, `main_image`, `additional_images`, `created_at`) VALUES
-(1, 'A vida do viana', 'Um dia o jacare decidiu mudar de cidade porque ele era bla bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'uploads/LOU_0002.jpg', '[\"uploads\\/LOU_0419.jpg\",\"uploads\\/LOU_3930.jpg\",\"uploads\\/vinhas.jpg\"]', '2025-01-05 00:41:54'),
-(10, 'vdsvhudsvvuvndsun', 'fnfnj', 'uploads/durante-stalinismo.jpg', '[]', '2025-01-10 12:01:10'),
-(11, 'olaolaola', 'fds', 'uploads/vecteezy_google-mail-icons_17396757.png', '[]', '2025-01-12 23:03:58'),
-(13, 'aaa', 'aaa', 'uploads/Viana-avatar.png', '[]', '2025-02-03 11:13:30'),
-(14, 'qeqw', 'ew', 'uploads/Viana-avatar.png', '[]', '2025-02-04 14:37:18');
+(1, 'gay lucas erasmus', 'cc', 'uploads/Imagem_WhatsApp_2025-03-07_às_23.29.38_3b90f27e-removebg-preview.png', '[]', '2025-03-08 19:40:24');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL,
+  `role_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`id`, `role_name`) VALUES
+(2, 'editor'),
+(3, 'moderator'),
+(1, 'superadmin');
 
 --
 -- Indexes for dumped tables
@@ -127,8 +140,8 @@ INSERT INTO `news` (`id`, `title`, `content`, `main_image`, `additional_images`,
 ALTER TABLE `admins`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`),
-  ADD UNIQUE KEY `unique_username` (`username`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `fk_admins_role` (`role_id`);
 
 --
 -- Indexes for table `admin_logs`
@@ -151,6 +164,13 @@ ALTER TABLE `news`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `role_name` (`role_name`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -164,23 +184,35 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `failed_logins`
 --
 ALTER TABLE `failed_logins`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `news`
 --
 ALTER TABLE `news`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `admins`
+--
+ALTER TABLE `admins`
+  ADD CONSTRAINT `fk_admins_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `admin_logs`
