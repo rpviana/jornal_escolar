@@ -79,146 +79,19 @@ $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;900&display=swap');
-
-        * {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .wrapper {
-            --input-focus: #f02df0;
-            --font-color: #323232;
-            --font-color-sub: #666;
-            --bg-color: #fff;
-            --main-color: #323232;
-        }
-
-        .flip-card__inner {
-            width: 300px;
-            height: 350px;
-            text-align: center;
-            background: lightgrey;
-            border-radius: 5px;
-            border: 2px solid var(--main-color);
-            box-shadow: 4px 4px var(--main-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .title {
-            font-size: 25px;
-            font-weight: 900;
-            color: var(--main-color);
-            margin-bottom: 20px;
-        }
-
-        .flip-card__form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .flip-card__input {
-            width: 250px;
-            height: 40px;
-            border-radius: 5px;
-            border: 2px solid var(--main-color);
-            background-color: var(--bg-color);
-            box-shadow: 4px 4px var(--main-color);
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--font-color);
-            padding: 5px 10px;
-            outline: none;
-        }
-
-        .username-wrapper,
-        .password-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        #username,
-        #password {
-            width: 250px;
-            height: 40px;
-            border-radius: 5px;
-            border: 2px solid var(--main-color);
-            background-color: var(--bg-color);
-            box-shadow: 4px 4px var(--main-color);
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--font-color);
-            padding: 5px 10px;
-            outline: none;
-        }
-
-        #eye-icon {
-            position: absolute;
-            right: 15px;
-            cursor: pointer;
-            width: 20px;
-            height: 20px;
-        }
-
-        .flip-card__btn {
-            margin: 20px 0;
-            width: 120px;
-            height: 40px;
-            border-radius: 5px;
-            border: 2px solid var(--main-color);
-            background-color: var(--bg-color);
-            box-shadow: 4px 4px var(--main-color);
-            font-size: 17px;
-            font-weight: 600;
-            color: var(--font-color);
-            cursor: pointer;
-        }
-
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-    </style>
-    <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eye-icon');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.src = 'eyes/eye.svg';
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.src = 'eyes/eye-slash.svg';
-            }
-        }
-    </script>
+    <!-- Conexão com o CSS -->
+    <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="wrapper">
+    <div class="containerlogin">
+        <div class="wrapperlogin">
             <div class="flip-card__inner">
-                <div class="title">Log in</div>
+                <div class="titlelogin">Log in</div>
                 <form class="flip-card__form" action="login.php" method="POST">
                     <input class="flip-card__input" name="username" placeholder="Username" type="text" required>
                     <div class="password-wrapper">
@@ -233,5 +106,20 @@ $conn->close();
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye-icon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.src = 'eyes/eye.svg';
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.src = 'eyes/eye-slash.svg';
+    }
+}
+    </script>
 </body>
 </html>

@@ -51,7 +51,7 @@ $conn->close();
     <a href="logout.php" class="btn btn-logout">Logout</a>
     
     <?php if ($role === 'superadmin'): ?>
-        <a href="manage_admins.php" class="btn btn-admins">Gerenciar Admins</a>
+        <a href="manage_admins.php" class="btn btn-admins">Controlar Admins</a>
         <a href="logs.php" class="btn btn-logs">Ver logs</a>
     <?php endif; ?>
 </body>

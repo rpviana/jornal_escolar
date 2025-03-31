@@ -151,6 +151,119 @@ body {
     margin-top: 20px;
 }
 
+/*=================LOGIN=================*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;900&display=swap');
+
+.containerlogin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.wrapperlogin {
+    --input-focus: #f02df0;
+    --font-color: #323232;
+    --font-color-sub: #666;
+    --bg-color: #fff;
+    --main-color: #323232;
+}
+
+.flip-card__inner {
+    width: 300px;
+    height: 350px;
+    text-align: center;
+    background: lightgrey;
+    border-radius: 5px;
+    border: 2px solid var(--main-color);
+    box-shadow: 4px 4px var(--main-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.titlelogin {
+    font-size: 25px;
+    font-weight: 900;
+    color: var(--main-color);
+    margin-bottom: 20px;
+}
+
+.flip-card__form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.flip-card__input {
+    width: 250px;
+    height: 40px;
+    border-radius: 5px;
+    border: 2px solid var(--main-color);
+    background-color: var(--bg-color);
+    box-shadow: 4px 4px var(--main-color);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--font-color);
+    padding: 5px 10px;
+    outline: none;
+}
+
+.username-wrapper,
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#username,
+#password {
+    width: 250px;
+    height: 40px;
+    border-radius: 5px;
+    border: 2px solid var(--main-color);
+    background-color: var(--bg-color);
+    box-shadow: 4px 4px var(--main-color);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--font-color);
+    padding: 5px 10px;
+    outline: none;
+}
+
+#eye-icon {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}
+
+.flip-card__btn {
+    margin: 20px 0;
+    width: 120px;
+    height: 40px;
+    border-radius: 5px;
+    border: 2px solid var(--main-color);
+    background-color: var(--bg-color);
+    box-shadow: 4px 4px var(--main-color);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--font-color);
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+/*=================FIM LOGIN=================*/
+
+
 /*=================MENU LATERAL=================*/
 
 .menu {
@@ -261,3 +374,106 @@ body {
     margin-right: 1rem;
 }
 /*=================FIM PERFIL=================*/
+
+/*=================INICIO BOTAO EDIT/DELETE=================*/
+
+.news-container-editdelete {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+/* Item de notícia */
+.news-item-editdelete {
+    border: 1px solid #ddd;
+    margin-bottom: 15px; /* Aumentei a margem entre as notícias */
+    padding: 15px; /* Um pouco mais de padding */
+    background-color: #f9f9f9; /* Cor de fundo mais suave */
+    border-radius: 5px; /* Bordas mais arredondadas */
+}
+
+/* Título e conteúdo da notícia */
+.news-item-editdelete h3 {
+    margin: 0;
+    font-size: 1.2em; /* Aumentei o tamanho do título */
+}
+
+.news-item-editdelete p {
+    margin: 8px 0; /* Espaçamento um pouco maior entre parágrafos */
+    font-size: 1em;
+}
+
+/* Estilos dos botões */
+.btn-editdelete {
+    padding: 8px 15px; /* Aumentei o padding para os botões ficarem mais visíveis */
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    margin-right: 10px; /* Mais margem entre os botões */
+    font-size: 1em; /* Aumentei o tamanho da fonte */
+    transition: background-color 0.3s ease;
+}
+
+.edit-btn-editdelete {
+    background-color: #4CAF50;
+    color: white;
+}
+/*botao eleminar */
+.delete-btn-editdelete {
+    background-color: #f44336;
+    color: white;
+}
+/*fim botao eleminar*/
+.edit-btn-editdelete:hover {
+    background-color: #45a049;
+}
+
+.delete-btn-editdelete:hover {
+    background-color: #da190b;
+}
+
+.save-btn-editdelete {
+    background-color: #008CBA;
+    color: white;
+}
+
+.save-btn-editdelete:hover {
+    background-color: #007bb5;
+}
+
+/* Formulário de edição */
+.form-container-editdelete {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: #fff; /* Fundo branco para o formulário */
+    border-radius: 5px; /* Bordas arredondadas no formulário */
+    width: 60%; /* Defini um tamanho fixo para o formulário */
+    margin-left: auto;
+    margin-right: auto; /* Centralizei o formulário */
+}
+
+/* Adicionando um pouco de espaçamento interno no formulário */
+.form-container-editdelete input,
+.form-container-editdelete textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px; /* Mais espaço entre os campos */
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-container-editdelete input[type="text"] {
+    font-size: 1em;
+}
+
+.form-container-editdelete textarea {
+    font-size: 1em;
+    min-height: 100px; /* Altura mínima para a área de texto */
+}
+
+.form-container-editdelete button {
+    width: 48%;
+    margin-right: 4%; /* Margem entre o botão salvar e cancelar */
+}
+
+/*=================FIM BOTAO EDIT/DELETE=================*/
