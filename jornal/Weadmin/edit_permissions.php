@@ -1,142 +1,126 @@
 <?php
+// Iniciar a sessão
 session_start();
-$conn = new mysqli('localhost', 'root', '', 'school_journal');
+include("db_connect.php"); // A ligação à base de dados
 
-if ($conn->connect_error) {
-    die("Erro na conexão: " . $conn->connect_error);
+// Verificar se o utilizador tem permissão para editar permissões
+if ($_SESSION['role'] != 1) { // Apenas superadmin pode editar permissões
+    header("Location: manage_admins.php");
+    exit();
 }
 
-// Verificar se o utilizador está autenticado e é superadmin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'superadmin') {
-    die("Acesso negado. Apenas Superadmins podem acessar esta página.");
-}
+// Processar o envio do formulário
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $admin_id = $_POST['admin_id'];
+    $role_id = $_POST['role_id'];
 
-// Buscar informações do admin para edição
-if (isset($_GET['admin_id'])) {
-    $admin_id = intval($_GET['admin_id']);
-
-    // Obter username e role_name via JOIN
-    $stmt = $conn->prepare("SELECT a.username, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.id = ?");
-    $stmt->bind_param("i", $admin_id);
-    $stmt->execute();
-    $stmt->bind_result($username, $role);
-    $stmt->fetch();
-    $stmt->close();
-
-    if (!$username) {
-        die("Administrador não encontrado.");
-    }
-}
-
-// Atualizar permissões
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_id'], $_POST['new_role'])) {
-    $admin_id = intval($_POST['admin_id']);
-    $new_role = $_POST['new_role'];
-    $current_admin_id = $_SESSION['id']; // ID do superadmin atual
-
-    // Buscar o username do superadmin atual
-    $stmt = $conn->prepare("SELECT username FROM admins WHERE id = ?");
-    $stmt->bind_param("i", $current_admin_id);
-    $stmt->execute();
-    $stmt->bind_result($current_admin_username);
-    $stmt->fetch();
-    $stmt->close();
-
-    if (!$current_admin_username) {
-        echo "<p>Erro: Superadmin não encontrado.</p>";
-        exit();
-    }
-
-    // Buscar o username do admin que está a ser editado
-    $stmt = $conn->prepare("SELECT username FROM admins WHERE id = ?");
-    $stmt->bind_param("i", $admin_id);
-    $stmt->execute();
-    $stmt->bind_result($target_admin_username);
-    $stmt->fetch();
-    $stmt->close();
-
-    if (!$target_admin_username) {
-        echo "<p>Erro: Admin não encontrado.</p>";
-        exit();
-    }
-
-    // Obter o role_id correspondente ao novo cargo (role_name)
-    $stmt = $conn->prepare("SELECT id FROM roles WHERE role_name = ?");
-    $stmt->bind_param("s", $new_role);
-    $stmt->execute();
-    $stmt->bind_result($new_role_id);
-    $stmt->fetch();
-    $stmt->close();
-
-    if (!$new_role_id) {
-        echo "<p>Erro: Cargo inválido.</p>";
-        exit();
-    }
-
-    // Atualizar permissões (atualiza a coluna role_id)
-    $stmt = $conn->prepare("UPDATE admins SET role_id = ? WHERE id = ?");
-    $stmt->bind_param("ii", $new_role_id, $admin_id);
-
-    if ($stmt->execute()) {
-        // Log da ação
-        $log_stmt = $conn->prepare("INSERT INTO admin_logs (admin_id, admin_username, action) VALUES (?, ?, ?)");
-        $action = "Alterou permissões do admin '$target_admin_username' (ID: $admin_id) para '$new_role'";
-        $log_stmt->bind_param("iss", $current_admin_id, $current_admin_username, $action);
-        $log_stmt->execute();
-        $log_stmt->close();
-
-        echo "<p>Permissões atualizadas com sucesso!</p>";
-        header("Location: manage_admins.php");
-        exit();
+    // Atualizar permissões
+    $query = "UPDATE admins SET role_id = '$role_id' WHERE id = '$admin_id'";
+    if (mysqli_query($conn, $query)) {
+        $_SESSION['success_message'] = "Permissões atualizadas com sucesso!";
     } else {
-        echo "<p>Erro ao atualizar permissões.</p>";
+        $_SESSION['error_message'] = "Erro ao atualizar permissões.";
     }
-
-    $stmt->close();
 }
 
-$conn->close();
+// Buscar todos os administradores
+$query = "SELECT * FROM admins";
+$result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Permissões</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { margin-bottom: 20px; }
-        form { display: flex; flex-direction: column; max-width: 400px; }
-        label { margin-bottom: 5px; font-weight: bold; }
-        select, button { margin-bottom: 10px; padding: 8px; }
-        button { background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        a { text-decoration: none; color: #fff; background: #008CBA; padding: 8px 12px; border-radius: 5px; display: inline-block; margin-top: 10px; }
-        a:hover { background: #007bb5; }
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin-top: 50px;
+        }
+
+        h2 {
+            font-family: 'Arial', sans-serif;
+            color: #495057;
+        }
+
+        table {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h1>Editar Permissões do Administrador</h1>
+    <div class="container">
+        <h2 class="text-center mb-4">Editar Permissões dos Administradores</h2>
+        
+        <?php if (isset($_SESSION['success_message'])): ?>
+            <div class="alert alert-success">
+                <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
+            </div>
+        <?php endif; ?>
 
-    <form method="POST" action="edit_permissions.php">
-        <input type="hidden" name="admin_id" value="<?php echo htmlspecialchars($admin_id); ?>">
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div class="alert alert-danger">
+                <?php echo $_SESSION['error_message']; unset($_SESSION['error_message']); ?>
+            </div>
+        <?php endif; ?>
 
-        <label>Nome de Utilizador:</label>
-        <p><strong><?php echo htmlspecialchars($username); ?></strong></p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Papel Atual</th>
+                    <th>Alterar Permissões</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?php echo $row['username']; ?></td>
+                        <td><?php echo $row['email']; ?></td>
+                        <td><?php
+                            $role_query = "SELECT * FROM roles WHERE id = " . $row['role_id'];
+                            $role_result = mysqli_query($conn, $role_query);
+                            $role = mysqli_fetch_assoc($role_result);
+                            echo $role['role_name'];
+                        ?></td>
+                        <td>
+                            <form method="POST" action="edit_permissions.php">
+                                <input type="hidden" name="admin_id" value="<?php echo $row['id']; ?>">
+                                <select class="form-select" name="role_id" required>
+                                    <option value="1" <?php echo $row['role_id'] == 1 ? 'selected' : ''; ?>>Superadmin</option>
+                                    <option value="2" <?php echo $row['role_id'] == 2 ? 'selected' : ''; ?>>Editor</option>
+                                    <option value="3" <?php echo $row['role_id'] == 3 ? 'selected' : ''; ?>>Moderador</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary mt-2">Atualizar</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </div>
 
-        <label>Permissão Atual:</label>
-        <p><strong><?php echo htmlspecialchars($role); ?></strong></p>
-
-        <label>Nova Permissão:</label>
-        <select name="new_role" required>
-            <option value="superadmin" <?php echo ($role === 'superadmin') ? 'selected' : ''; ?>>Superadmin</option>
-            <option value="editor" <?php echo ($role === 'editor') ? 'selected' : ''; ?>>Editor</option>
-            <option value="moderator" <?php echo ($role === 'moderator') ? 'selected' : ''; ?>>Moderator</option>
-        </select>
-
-        <button type="submit">Salvar Alterações</button>
-    </form>
-
-    <a href="manage_admins.php">Voltar para Controlar Admins</a>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>

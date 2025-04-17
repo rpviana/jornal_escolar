@@ -1,33 +1,42 @@
 <?php
 session_start();
 
-// Verificar se o admin está logado
 if (!isset($_SESSION['username'])) {
     header("Location: login/login.php");
     exit();
 }
 
-// Conexão com a base de dados
 $conn = new mysqli('localhost', 'root', '', 'school_journal');
 if ($conn->connect_error) {
     die("Erro de conexão: " . $conn->connect_error);
 }
 
-// Inicializar variáveis
 $edit_mode = false;
 $edit_news = null;
+$search_query = "";
 
-// Excluir notícia
+if (isset($_POST['search'])) {
+    $search_query = $_POST['search_query'];
+    $stmt = $conn->prepare("SELECT * FROM news WHERE id LIKE ? OR title LIKE ?");
+    $search_param = "%" . $search_query . "%";  // Para procurar por ID ou título com base no valor fornecido
+    $stmt->bind_param("ss", $search_param, $search_param);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $stmt = $conn->prepare("SELECT * FROM news ORDER BY created_at DESC");
+    $stmt->execute();
+    $result = $stmt->get_result();
+}
+
 if (isset($_POST['delete'])) {
     $id = $_POST['news_id'];
     $stmt = $conn->prepare("DELETE FROM news WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->close();
-    echo "<p>Notícia excluída com sucesso!</p>";
+    echo "<p class='edit-news-message edit-news-success'>✅ Notícia eliminada com sucesso!</p>";
 }
 
-// Buscar notícia para edição
 if (isset($_POST['edit'])) {
     $id = $_POST['news_id'];
     $stmt = $conn->prepare("SELECT * FROM news WHERE id = ?");
@@ -39,7 +48,6 @@ if (isset($_POST['edit'])) {
     $stmt->close();
 }
 
-// Salvar alterações na notícia
 if (isset($_POST['update'])) {
     $id = $_POST['news_id'];
     $title = $_POST['title'];
@@ -47,75 +55,73 @@ if (isset($_POST['update'])) {
     $stmt = $conn->prepare("UPDATE news SET title = ?, content = ? WHERE id = ?");
     $stmt->bind_param("ssi", $title, $content, $id);
     if ($stmt->execute()) {
-        echo "<p>Notícia atualizada com sucesso!</p>";
+        echo "<p class='edit-news-message edit-news-success'>✅ Notícia atualizada com sucesso!</p>";
     } else {
-        echo "<p>Erro: " . $stmt->error . "</p>";
+        echo "<p class='edit-news-message edit-news-error'>❌ Erro: " . $stmt->error . "</p>";
     }
     $stmt->close();
     $edit_mode = false;
 }
 
-// Buscar todas as notícias
-$stmt = $conn->prepare("SELECT * FROM news ORDER BY created_at DESC");
-$stmt->execute();
-$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Editar/Excluir Notícias</title>
-    <!-- Conexão com o CSS externo -->
-    <link rel="stylesheet" href="http://localhost/jornal/css/style.css">
+    <title>Gerir Notícias</title>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <h1>Editar/Excluir Notícias</h1>
+    <div class="edit-news-wrapper">
+        <h1 class="edit-news-title">📰 Gerir Notícias</h1>
 
-    <?php if ($edit_mode && $edit_news): ?>
-        <!-- Formulário de Edição -->
-        <div class="form-container-editdelete">
-            <h2>Editar Notícia</h2>
-            <form method="POST">
-                <input type="hidden" name="news_id" value="<?php echo $edit_news['id']; ?>">
-                <label>Título:</label><br>
-                <input type="text" name="title" value="<?php echo htmlspecialchars($edit_news['title']); ?>" required><br><br>
-                <label>Conteúdo:</label><br>
-                <textarea name="content" rows="5" required><?php echo htmlspecialchars($edit_news['content']); ?></textarea><br><br>
-                <button type="submit" name="update" class="btn-editdelete save-btn-editdelete">Salvar Alterações</button>
-                <a href="edit_delete_news.php" class="btn-editdelete delete-btn-editdelete">Cancelar</a>
-            </form>
-        </div>
-    <?php else: ?>
-        <!-- Lista de Notícias -->
-        <div class="news-container-editdelete">
-            <?php if ($result->num_rows > 0): ?>
-                <?php while ($news = $result->fetch_assoc()): ?>
-                    <div class="news-item-editdelete">
-                        <h3><?php echo htmlspecialchars($news['title']); ?></h3>
-                        <p><strong>Data:</strong> <?php echo htmlspecialchars($news['created_at']); ?></p>
-                        <p><?php echo nl2br(htmlspecialchars($news['content'])); ?></p>
-                        <form method="POST" style="display: inline;">
-                            <input type="hidden" name="news_id" value="<?php echo $news['id']; ?>">
-                            <button type="submit" name="edit" class="btn-editdelete edit-btn-editdelete">Editar</button>
-                            <button type="submit" name="delete" class="btn-editdelete delete-btn-editdelete" onclick="return confirm('Tem certeza que deseja excluir esta notícia?');">Excluir</button>
-                        </form>
+        <!-- Barra de pesquisa -->
+        <form method="POST" class="edit-news-search-form">
+            <input type="text" name="search_query" placeholder="Procurar por ID ou Título..." value="<?= htmlspecialchars($search_query) ?>" class="edit-news-search-input">
+            <button type="submit" name="search" class="edit-news-btn search">🔍 Procurar</button>
+        </form>
+
+        <?php if ($edit_mode && $edit_news): ?>
+            <div class="edit-news-form-container">
+                <h2 class="edit-news-subtitle">✏️ Editar Notícia</h2>
+                <form method="POST" class="edit-news-form">
+                    <input type="hidden" name="news_id" value="<?= $edit_news['id'] ?>">
+                    <input type="text" name="title" value="<?= htmlspecialchars($edit_news['title']) ?>" required class="edit-news-input">
+                    <textarea name="content" rows="5" required class="edit-news-textarea"><?= htmlspecialchars($edit_news['content']) ?></textarea>
+                    <div class="edit-news-buttons">
+                        <button type="submit" name="update" class="edit-news-btn save">💾 Guardar</button>
+                        <a href="edit_delete_news.php" class="edit-news-btn cancel">❌ Cancelar</a>
                     </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p>Nenhuma notícia encontrada.</p>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
+                </form>
+            </div>
+        <?php else: ?>
+            <div class="edit-news-list">
+                <?php if ($result->num_rows > 0): ?>
+                    <?php while ($news = $result->fetch_assoc()): ?>
+                        <div class="edit-news-card">
+                            <h3 class="edit-news-card-title"><?= htmlspecialchars($news['title']) ?></h3>
+                            <p class="edit-news-card-date">🗓️ <?= htmlspecialchars($news['created_at']) ?></p>
+                            <p class="edit-news-card-content"><?= nl2br(htmlspecialchars($news['content'])) ?></p>
+                            <form method="POST" class="edit-news-actions">
+                                <input type="hidden" name="news_id" value="<?= $news['id'] ?>">
+                                <button type="submit" name="edit" class="edit-news-btn edit">✏️ Editar</button>
+                                <button type="submit" name="delete" class="edit-news-btn delete" onclick="return confirm('Tens a certeza que queres eliminar esta notícia?');">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p class="edit-news-message">📭 Nenhuma notícia encontrada.</p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
-    <?php
-    $stmt->close();
-    $conn->close();
-    ?>
-    <br>
-    <a href="admin_dashboard.php">Voltar ao Painel</a>
-
-    <!-- Conexão com o JS externo -->
-    <script src="../js/script.js"></script>
+        <a href="admin_dashboard.php" class="edit-news-back">⬅️ Voltar ao Painel</a>
+    </div>
 </body>
 </html>
+
+<?php
+$stmt->close();
+$conn->close();
+?>

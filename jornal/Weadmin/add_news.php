@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("ssss", $title, $content, $main_image, $additional_images_json);
 
     if ($stmt->execute()) {
-        echo "<p>✅ Notícia adicionada com sucesso!</p>";
+        echo "<p class='alert success'>✅ Notícia adicionada com sucesso!</p>";
     } else {
-        echo "<p>❌ Erro: " . $stmt->error . "</p>";
+        echo "<p class='alert error'>❌ Erro: " . $stmt->error . "</p>";
     }
 
     $stmt->close();
@@ -66,26 +66,78 @@ $conn->close();
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Notícia</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        form { display: flex; flex-direction: column; max-width: 400px; }
-        input, textarea { margin-bottom: 10px; padding: 8px; }
-        button { padding: 10px; cursor: pointer; background-color: #4CAF50; color: white; }
-        a { margin-top: 10px; display: inline-block; }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Adicionar Notícia</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="text" name="title" placeholder="Título" required>
-        <textarea name="content" placeholder="Conteúdo da notícia" rows="5" required></textarea>
-        <label>Imagem Principal:</label>
-        <input type="file" name="main_image" accept="image/*" required>
-        <label>Imagens Adicionais:</label>
-        <input type="file" name="additional_images[]" accept="image/*" multiple>
-        <button type="submit">Publicar</button>
-    </form>
-    <a href="admin_dashboard.php">⬅️ Voltar ao Painel</a>
+    <div class="main-wrapper">
+        <header class="header-container">
+            <h1>Adicionar Nova Notícia</h1>
+        </header>
+
+        <div class="form-wrapper">
+            <form method="POST" enctype="multipart/form-data" class="news-form">
+                <label for="title" class="input-label">Título da Notícia:</label>
+                <input type="text" name="title" id="title" class="input-field" placeholder="Insira o título da notícia" required>
+
+                <label for="content" class="input-label">Conteúdo:</label>
+                <textarea name="content" id="content" class="input-textarea" placeholder="Digite o conteúdo da notícia" rows="6" required></textarea>
+
+                <label for="main_image" class="input-label">Imagem Principal:</label>
+                <div class="file-upload-box">
+                    <input type="file" name="main_image" id="main_image" class="file-input" accept="image/*" required>
+                    <div class="file-input-text">Arraste ou clique para selecionar a imagem principal</div>
+                </div>
+
+                <label for="additional_images" class="input-label">Imagens Adicionais:</label>
+                <div class="file-upload-box">
+                    <input type="file" name="additional_images[]" id="additional_images" class="file-input" accept="image/*" multiple>
+                    <div class="file-input-text">Arraste ou clique para selecionar imagens adicionais</div>
+                </div>
+
+                <button type="submit" class="submit-button">Publicar Notícia</button>
+            </form>
+
+            <a href="admin_dashboard.php" class="back-button">Voltar ao Painel</a>
+        </div>
+    </div>
 </body>
+<script>
+document.querySelectorAll('.file-upload-box').forEach(box => {
+    const input = box.querySelector('input');
+    const text = box.querySelector('.file-input-text');
+
+    // Clica na caixa → ativa o input real
+    box.addEventListener('click', () => input.click());
+
+    // Atualiza texto com o nome do ficheiro
+    input.addEventListener('change', () => {
+        if (input.files.length === 1) {
+            text.textContent = input.files[0].name;
+        } else if (input.files.length > 1) {
+            text.textContent = input.files.length + " ficheiros selecionados";
+        }
+    });
+
+    // Impede que o browser abra a imagem ao arrastar
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        box.addEventListener(eventName, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    });
+
+    // Visual feedback
+    box.addEventListener('dragover', () => box.classList.add('drag-over'));
+    box.addEventListener('dragleave', () => box.classList.remove('drag-over'));
+    box.addEventListener('drop', e => {
+        input.files = e.dataTransfer.files;
+        input.dispatchEvent(new Event('change'));
+        box.classList.remove('drag-over');
+    });
+});
+</script>
+
 </html>

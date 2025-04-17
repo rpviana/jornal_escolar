@@ -36,8 +36,7 @@ if ($result->num_rows > 0) {
 $username = $_POST['username'];
 $password = $_POST['password'];
 
-// Atualizado para obter o password e role_name via JOIN com a tabela roles
-$stmt = $conn->prepare("SELECT a.password, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
+$stmt = $conn->prepare("SELECT a.id, a.password, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -45,11 +44,11 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     if (password_verify($password, $row['password'])) {
-        // Login bem-sucedido, limpa tentativas
         $stmt = $conn->prepare("DELETE FROM failed_logins WHERE ip_address = ?");
         $stmt->bind_param("s", $ip_address);
         $stmt->execute();
 
+        $_SESSION['id'] = $row['id']; // ← Aqui resolves o problema
         $_SESSION['username'] = $username;
         $_SESSION['role'] = $row['role_name'];
         header("Location: ../front-page.php");

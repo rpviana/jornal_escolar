@@ -11,7 +11,6 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// Conexão com a base de dados
 $conn = new mysqli('localhost', 'root', '', 'school_journal');
 if ($conn->connect_error) {
     die("Erro de conexão: " . $conn->connect_error);
@@ -27,6 +26,8 @@ $admin = $result->fetch_assoc();
 $role = $admin['role_name'];
 $stmt->close();
 $conn->close();
+
+
 ?>
 
 <!DOCTYPE html>
