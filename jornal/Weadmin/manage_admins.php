@@ -54,31 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
         $log_stmt->execute();
         $log_stmt->close();
 
-        header("Location: manage_admin.php");
+        header("Location: manage_admins.php");
         exit();
     }
-}
-
-// Editar permissões (redirigir e logar)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
-    $admin_id = intval($_POST['admin_id']);
-    $current_admin_id = $_SESSION['id'];
-
-    $stmt = $conn->prepare("SELECT username FROM admins WHERE id = ?");
-    $stmt->bind_param("i", $admin_id);
-    $stmt->execute();
-    $stmt->bind_result($admin_username);
-    $stmt->fetch();
-    $stmt->close();
-
-    $log_stmt = $conn->prepare("INSERT INTO admin_logs (admin_id, admin_username, action) VALUES (?, ?, ?)");
-    $action = "Acedeu à edição de permissões de '$admin_username' (ID: $admin_id)";
-    $log_stmt->bind_param("iss", $current_admin_id, $_SESSION['username'], $action);
-    $log_stmt->execute();
-    $log_stmt->close();
-
-    header("Location: edit_permissions.php?admin_id=$admin_id");
-    exit();
 }
 ?>
 
@@ -89,7 +67,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <title>Gestão de Administradores</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; background: #f9f9f9; }
-        h1 { color: #333; }
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+        }
+        h1 { color: #333; margin: 0; }
+        .add-admin-btn {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        .add-admin-btn:hover {
+            background: linear-gradient(135deg, #00cec9, #00b894);
+            transform: scale(1.05);
+        }
         .admin-box { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; }
         .admin-box p { margin: 8px 0; }
         .btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
@@ -103,31 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
         .search-button:hover { background-color: #27ae60; }
         .back-btn { display: inline-block; margin-top: 30px; padding: 10px 20px; background: #8e44ad; color: white; text-decoration: none; border-radius: 5px; }
         .back-btn:hover { background: #71368a; }
-        /* Novo botão no topo direito */
-        .new-admin-btn { 
-            position: absolute; 
-            top: 30px; 
-            right: 30px; 
-            background-color: #2ecc71; 
-            color: white; 
-            padding: 10px 20px; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            text-decoration: none; 
-        }
-        .new-admin-btn:hover {
-            background-color: #27ae60;
-        }
     </style>
 </head>
 <body>
-    <h1>Gestão de Administradores</h1>
 
-    <!-- Botão "Novo Admin" no topo direito -->
-    <a href="../Weadmin/add_admin.php" class="new-admin-btn">Novo Admin</a>
+    <div class="top-bar">
+        <h1>Gestão de Administradores</h1>
+        <a href="add_admin.php" class="add-admin-btn">Criar Admin</a>
+    </div>
 
     <div class="search-box">
-        <form method="GET" action="manage_admin.php">
+        <form method="GET" action="manage_admins.php">
             <input type="text" name="search" class="search-input" placeholder="Procurar por ID ou Username..." value="<?php echo htmlspecialchars($search); ?>">
             <button type="submit" class="search-button">Pesquisar</button>
         </form>
@@ -136,17 +121,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit'])) {
     <?php if ($result->num_rows > 0): ?>
         <?php while ($admin = $result->fetch_assoc()): ?>
             <div class="admin-box">
-                <p><strong>Username:</strong> <?php echo htmlspecialchars($admin['username']); ?></p>
+            <p><strong>Id:</strong> <span style="color: red;"><?php echo htmlspecialchars($admin['id']); ?></span></p>
+            <p><strong>Username:</strong> <?php echo htmlspecialchars($admin['username']); ?></p>
                 <p><strong>Permissão:</strong> <?php echo htmlspecialchars($admin['role']); ?></p>
-                <form method="POST" style="display: inline;">
-                    <input type="hidden" name="admin_id" value="<?php echo $admin['id']; ?>">
-                    <?php if ($admin['role'] !== 'superadmin'): ?>
-                        <button type="submit" name="edit" class="btn edit-btn">Editar Permissões</button>
-                        <button type="submit" name="delete" class="btn delete-btn" onclick="return confirm('Tens a certeza que queres eliminar este admin?');">Eliminar</button>
-                    <?php else: ?>
-                        <p><strong>Superadmin</strong> - Não é possível editar ou eliminar.</p>
-                    <?php endif; ?>
-                </form>
+
+                <?php if ($admin['role'] !== 'superadmin'): ?>
+                    <!-- Botão Editar Permissões -->
+                    <form method="GET" action="edit_permissions.php" style="display:inline;">
+                        <button type="submit" name="id" value="<?php echo $admin['id']; ?>" class="btn edit-btn">Editar Permissões</button>
+                    </form>
+
+                    <!-- Botão Eliminar -->
+                    <form method="POST" style="display:inline;" onsubmit="return confirm('Tens a certeza que queres eliminar este admin?');">
+                        <input type="hidden" name="admin_id" value="<?php echo $admin['id']; ?>">
+                        <button type="submit" name="delete" class="btn delete-btn">Eliminar</button>
+                    </form>
+                <?php else: ?>
+                    <p><strong>Superadmin</strong> - Não é possível editar ou eliminar.</p>
+                <?php endif; ?>
             </div>
         <?php endwhile; ?>
     <?php else: ?>

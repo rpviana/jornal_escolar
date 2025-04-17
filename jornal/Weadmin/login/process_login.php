@@ -36,7 +36,7 @@ if ($result->num_rows > 0) {
 $username = $_POST['username'];
 $password = $_POST['password'];
 
-$stmt = $conn->prepare("SELECT a.id, a.password, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
+$stmt = $conn->prepare("SELECT a.id, a.password, a.role_id, r.role_name FROM admins a JOIN roles r ON a.role_id = r.id WHERE a.username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -48,9 +48,9 @@ if ($result->num_rows > 0) {
         $stmt->bind_param("s", $ip_address);
         $stmt->execute();
 
-        $_SESSION['id'] = $row['id']; // ← Aqui resolves o problema
+        $_SESSION['id'] = $row['id'];  // Guarda o ID do administrador
         $_SESSION['username'] = $username;
-        $_SESSION['role'] = $row['role_name'];
+        $_SESSION['role'] = $row['role_id'];  // Agora guarda o role_id, não o role_name
         header("Location: ../front-page.php");
         exit();
     } else {

@@ -270,34 +270,78 @@ body {
 .menu {
     position: fixed;
     top: 0;
-    left: 0; /* Deixamos o menu fixo à esquerda */
+    left: 0;
     width: 260px;
     height: 100%;
-    background: #ffffff12;
-    backdrop-filter: blur(5px);
-    box-shadow: 8px 0px 9px 0px #00000014;
-    padding: 20px;
-    z-index: 1000; /* Garante que o menu fique sempre em cima */
+    background-color: #333;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 20px;
+}
+
+.menu-content {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .menu-content li {
-    list-style: none;
-    border-radius: 0px 50px 50px 0;
-    transition: .3s;
-    margin-bottom: 20px;
-    padding-left: 20px;
+    margin: 15px 0;
 }
 
-.menu-content li:hover {
-    background: #0c0c0c;
+.menu-content a {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: 0.3s;
 }
 
-.material-symbols-outlined {
-    padding: 10px;
-    font-size: 25px;
-    margin-right: 10px;
-    border-radius: 50%;
-    background: #0c0c0c;
+.menu-content a:hover {
+    background-color: #444;
+}
+
+.menu-content .material-symbols-outlined {
+    margin-right: 15px;
+    font-size: 22px;
+}
+
+.menu-content a.active {
+    background-color: #f39c12;
+    color: white;
+    font-weight: bold;
+}
+
+/* Adicionar o espaço para o conteúdo da página */
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .menu {
+        width: 100%;
+        height: auto;
+        position: relative;
+        box-shadow: none;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .menu-content a {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
 }
 
 /*=================FIM MENU LATERAL=================*/
@@ -597,9 +641,34 @@ button,
     color: white;
 }
 
-.error {
-    background-color: #f44336;
-    color: white;
+/*==================== FIM ADD NEWS =====================*/
+
+/*==================== ADMIN DASHBOARD =====================*/
+.btndash { 
+    display: inline-block; 
+    padding: 10px 15px; 
+    margin: 5px; 
+    text-decoration: none; 
+    color: white; 
+    border-radius: 5px; 
+}
+.btndash-add { 
+    background-color: #4CAF50; 
 }
 
-/*==================== FIM ADD NEWS =====================*/
+.btndash-edit { 
+    background-color: #2196F3; 
+}
+
+.btndash-logout { 
+    background-color: #f44336; 
+}
+
+.btndash-admins { 
+    background-color: #ff9800; 
+}
+
+.btndash-logs { 
+    background-color: #D2B48C; 
+}
+/*==================== FIM ADMIN DASHBOARD =====================*/
